@@ -1,0 +1,50 @@
+mybatis:
+    mapperLocations: classpath:com/jspptd/postal/collectserver/mapping/*.xml
+    typeAliasesPackage: com.jspptd.postal.collectserver.model
+server:
+  port: 10004
+
+spring:
+  resource: 
+    static-locations: file:/public/
+  http:
+    multipart:
+      max-file-size: 20Mb
+      max-request-size: 80Mb
+  datasource:
+    url: jdbc:mysql://172.16.12.196:3306/postial?autoReconnect=true
+#    jdbc:oracle:thin:@172.16.241.177:1521:rjyorcl
+    username: root
+    password: jsptpd196
+#    url: jdbc:oracle:thin:@132.228.226.11:1521:JSEIPDB
+#    username: newsec
+#    password: passw0rd
+    driver-class-name: com.mysql.jdbc.Driver
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    #自动检测关闭和空闲连接的间隔
+    timeBetweenEvictionRunsMillis: 30000
+    #最小生存时间
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    #这个参数设置为true，可以保证每次的连接都是正常的，但是。。 性能会降低， 建议使用空闲下检测30s一次， 这样服务器最多30s出现问题后恢复
+    testOnBorrow: false
+    testOnReturn: false
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=3000
+    filters: stat
+    #PSCatch
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+
+
+#    picture/表示存到了该项目目录下的picture文件夹下
+#    D:/表示存到了电脑d盘下
+destDirName: picture/
+
+
+
+
+
