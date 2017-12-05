@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -31,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
  * Created by LOG on 2017/7/5.
  */
 @RestController
+//@Controller
 @RequestMapping("/takePicture")
 public class CollectController {
 
@@ -40,7 +42,7 @@ public class CollectController {
     protected String destDirName;
 
     /**
-     * 文件上传
+     * 图片上传
      */
     @RequestMapping(value = "/uploadPicture", method = RequestMethod.POST)
     ResponseObj<Boolean> uploadPicture(HttpServletRequest request) {
@@ -89,23 +91,62 @@ public class CollectController {
         log.info("进入文件上传逻辑");
         if (request instanceof MultipartHttpServletRequest) {
             MultipartHttpServletRequest mulRequest = (MultipartHttpServletRequest) request;
-            Set<Map.Entry<String, MultipartFile>> set = mulRequest.getFileMap().entrySet();
+            /**
+             * 下面的该方法适用单张图片的上传
+             * 如果是多张图片一起上传，需要知道安卓端采用的是哪有多文件上传方式
+             * 一：如果采用的是这种方式，则下面的方法不适用多文件上传
+             *    @Multipart
+             *    @POST("takePicture/picture")
+             *    Observable<ResponseObj<Boolean>> uploadPictures(@Part("filename") String description,
+             *    @Part("pic\"; filename=\"image1.png") RequestBody imgs1,
+             *    @Part("pic\"; filename=\"image2.png") RequestBody imgs2);
 
-            String photoId = UUID.randomUUID().toString();
-            for (Map.Entry<String, MultipartFile> each : set) {
-                String fileName = each.getKey();
-                String name = each.getValue().getOriginalFilename();
-                String suffixal = getSuffixal(name);
-                try {
-                    writeToLocal(fileName, each.getValue().getInputStream());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return new ResponseObj(false, new Error("文件保存失败"));
+             * 二：如果采用的是map这种方式，则可以
+             *    @Multipart
+             *    @POST("takePicture/picture")
+             *    Observable<ResponseObj<Boolean>> uploadPictures(@Part("filename") String description,
+             *    @PartMap() Map<String, RequestBody> maps);
+             */
+//            Set<Map.Entry<String, MultipartFile>> set = mulRequest.getFileMap().entrySet();
+//            for (Map.Entry<String, MultipartFile> each : set) {
+//                MultipartFile value = each.getValue();
+//                String photoId = UUID.randomUUID().toString();
+//                String eachKey = each.getKey();  //选择key作为文件名还是value里的，这里自己定义
+//                String fileName = each.getValue().getOriginalFilename();  //图片流应该是在value里
+//                String suffixal = getSuffixal(fileName);
+//                try {
+//                    writeToLocal(fileName, each.getValue().getInputStream());
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                    return new ResponseObj(false, new Error("文件保存失败"));
+//                }
+//            }
+
+            /**
+             * 这种方法适用单张，多张图片上传，不管什么方式
+             */
+            Set<Map.Entry<String, List<MultipartFile>>> entries = mulRequest.getMultiFileMap().entrySet();
+            for (Map.Entry<String, List<MultipartFile>> each : entries) {
+                List<MultipartFile> value = each.getValue();
+                for (MultipartFile multipartFile : value) {
+                    String photoId = UUID.randomUUID().toString();
+                    String eachKey = each.getKey();  //选择key作为文件名还是value里的，这里自己定义
+
+                    String fileName = multipartFile.getOriginalFilename();
+                    String suffixal = getSuffixal(fileName);
+                    try {
+                        writeToLocal(fileName, multipartFile.getInputStream());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return new ResponseObj(false, new Error("文件保存失败"));
+                    }
                 }
             }
+
         }
         return new ResponseObj<>(true, null);
     }
+
 
     /**
      * 接收到安卓端传过来的map，将图片保存到本地电脑
