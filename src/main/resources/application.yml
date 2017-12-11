@@ -1,6 +1,20 @@
+#mybatis:
+#    mapperLocations: classpath:com/jspptd/postal/collectserver/mapping/*.xml
+#    typeAliasesPackage: com.jspptd.postal.collectserver.model
+
 mybatis:
-    mapperLocations: classpath:com/jspptd/postal/collectserver/mapping/*.xml
-    typeAliasesPackage: com.jspptd.postal.collectserver.model
+  mapUnderscoreToCamelCase: true
+  logImpl: org.apache.ibatis.logging.stdout.StdOutImpl
+  typeAliasesPackage: com.jspptd.postal.collectserver.dao
+  mapperLocations: classpath:com/jspptd/postal/collectserver/mapping/*.xml
+
+#mybatis:
+#  configuration:  #如果这里加上了configuration，那么替换符就是#{mybatis.configuration.typeAliasesPackage}
+#    mapUnderscoreToCamelCase: true
+#    logImpl: org.apache.ibatis.logging.stdout.StdOutImpl
+#    typeAliasesPackage: com.jspptd.postal.collectserver.dao
+#    mapperLocations: classpath:com/jspptd/postal/collectserver/mapping/*.xml
+
 server:
   port: 10004
 
